@@ -41,7 +41,7 @@ void sha256(__global const char* input, int size_in_byte,  __global unsigned int
 
     /*----------------------- pad input to 512 bit, 32 bit*16 batch --------------------------*/
         int dist = 447 - size_in_byte * 8;       // d + block_le + 64 + 1 = 512  <---> k = 447-block_le
-	char inchar[64];
+	char inchar[64]={0};
 	for(int i=0;i<size_in_byte;i++){
 		inchar[i]=*(input+i);
 	}
@@ -49,7 +49,7 @@ void sha256(__global const char* input, int size_in_byte,  __global unsigned int
     dist = dist - 7;                          // added in 7 zero
 
     for (int i = 0; i < dist / 8; i++)
-        *(inchar + size_in_byte) = (char)0x00;
+        *(inchar + size_in_byte+i+1) = (char)0x00;
 
     unsigned long long length = size_in_byte * 8;
     unsigned long long mask = 0xff00000000000000;
@@ -64,7 +64,7 @@ void sha256(__global const char* input, int size_in_byte,  __global unsigned int
         *(inchar + 56 + i) = length_b[i];
     }
 
-    unsigned int padout[16];
+    unsigned int padout[16]={0};
     unsigned int temp1, temp2, temp3, temp4;
 
     __attribute__((xcl_pipeline_loop(1)))
@@ -73,7 +73,7 @@ void sha256(__global const char* input, int size_in_byte,  __global unsigned int
         temp1 = *(inchar + i * 4);   temp1 = temp1 << 24;
         temp2 = *(inchar + i * 4 + 1); temp2 = temp2 << 16;
         temp3 = *(inchar + i * 4 + 2); temp3 = temp3 << 8;
-        temp4 = *(inchar + i * 4 + 3);
+        temp4 = *(inchar + i * 4 + 3); temp4 = temp4 & 0xff;
         padout[i] = temp1 | temp2 | temp3 | temp4;
     }
 
@@ -87,7 +87,8 @@ void sha256(__global const char* input, int size_in_byte,  __global unsigned int
     __attribute((xcl_pipeline_loop(1)))
     w_compute: for(int i=16;i<64;i++)
     {
-        w[i]=SSIG1(padout[i-2])+padout[i-7]+SSIG0(padout[i-15])+padout[i-16];
+        w[i]=SSIG1(w[i-2])+w[i-7]+SSIG0(w[i-15])+w[i-16];
+		w[i]=w[i] & 0xffffffff;
     }
 
     unsigned long tp1,tp2;
@@ -110,7 +111,7 @@ void sha256(__global const char* input, int size_in_byte,  __global unsigned int
         f=e;
         e=(d+tp1)&0xffffffff;
         d=c;
-        d=b;
+        c=b;
         b=a;
         a=tp1+tp2&0xFFFFFFFF;
     }
