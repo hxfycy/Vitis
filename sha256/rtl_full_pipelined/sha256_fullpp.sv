@@ -178,7 +178,7 @@ module sha256_rtl #(
 
 	assign in_hd=m_tvalid&&m_tready;			
 	assign cnt_en6=!f_tdata[1]&in_hd;						//flag=0,1,  6 input
-	assign cnt_en14=co_6|co_14;						        //flag=2,3, 14 input
+	assign cnt_en14=f_tdata[1]&in_hd;						//flag=2,3, 14 input
 	assign cnt_en1G=(co_14|co_6);				            //flag=1,3, 1G length at total	
 	assign batch_init=f_tdata==s1_axis_tdata;				//changing flag denotes the beginning of one batch
 	assign message_valid=co_14|co_6;                        //padding module input signal
@@ -263,7 +263,7 @@ module sha256_rtl #(
                                     w0_padbuf[j][pad_ptr[j]]<=pad_out[10239-j*512:10208-j*512];
                                     w1_padbuf[j][pad_ptr[j]]<=pad_out[10207-j*512:10176-j*512];
                                     w2_padbuf[j][pad_ptr[j]]<=pad_out[10175-j*512:10144-j*512];
-                                    w3_padbuf[j][pad_ptr[j]]<=pad_out[10143-j*512:10122-j*512];
+                                    w3_padbuf[j][pad_ptr[j]]<=pad_out[10143-j*512:10112-j*512];
                                     w4_padbuf[j][pad_ptr[j]]<=pad_out[10111-j*512:10080-j*512];
                                     w5_padbuf[j][pad_ptr[j]]<=pad_out[10079-j*512:10048-j*512];
                                     w6_padbuf[j][pad_ptr[j]]<=pad_out[10047-j*512:10016-j*512];

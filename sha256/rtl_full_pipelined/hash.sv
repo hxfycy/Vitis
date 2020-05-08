@@ -138,6 +138,8 @@ module hash256
 		end
 		else if(out_hs&&!in_hs)
 		out_valid<=1'b0;
+//		else 
+//		out_valid<=1'b0;
 	end
 endmodule 
 
@@ -186,10 +188,7 @@ module padding
   assign out=out_temp;
   assign in_ready=out_ready;
 	
-	always@ (posedge clk) begin
-		out_valid<=in_valid&in_ready;
-	end
-  
+
   always@(posedge clk) begin
   if(in_valid&&in_ready)begin
     out_temp<={message_in,1'b1,191'b0,DATA_WIDTH};
