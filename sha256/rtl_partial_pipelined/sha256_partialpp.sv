@@ -21,7 +21,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module sha256_partial#(
+module sha256#(
   parameter integer S_AXIS_TDATA_WIDTH=512, //input
   parameter integer M_AXIS_TDATA_WIDTH=512,	//output
   parameter Replica_ID=256'b1
